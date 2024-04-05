@@ -13,7 +13,6 @@ Small gist like web application built in Go, following along with the book Let's
 
 1. Install all [Prerequisites](docs/prerequisites.md)
 
-
 **[⬆ back to top](#table-of-contents)**
 
 ## Available Commands
