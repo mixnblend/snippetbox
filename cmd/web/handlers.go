@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 )
 
 // define a home handler function which writes a byte slice containing
 // "Hello from Snippetbox" as the response body.
-func home(w http.ResponseWriter, r *http.Request) {
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
   // Use the Header().Add() method to add a 'Server: Go' header to the
   // response header map. The first parameter is the header name, and
   // the second parameter is the header value.	
@@ -31,7 +30,12 @@ func home(w http.ResponseWriter, r *http.Request) {
   // of the files slice as variadic arguments.
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Print(err.Error())
+		// Because the home handler is now a method against the application
+		// struct it can access its fields, including the structured logger. We'll 
+		// use this to create a log entry at Error level containing the error
+		// message, also including the request method and URI as attributes to 
+		// assist with debugging.
+		app.logger.Error(err.Error(), "method", r.Method, "uri", r.URL.RequestURI())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -42,12 +46,12 @@ func home(w http.ResponseWriter, r *http.Request) {
   // leave as nil.
 	err = ts.ExecuteTemplate(w, "base", nil)
 	if err != nil {
-			log.Print(err.Error())
+			app.logger.Error(err.Error(), "method", r.Method, "uri", r.URL.RequestURI())
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
 
-func snippetView(w http.ResponseWriter, r *http.Request) {
+func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	// Extract the value of the id wildcard from the request using r.PathValue()
   // and try to convert it to an integer using the strconv.Atoi() function. If
@@ -64,12 +68,12 @@ func snippetView(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Display a specific input with ID %d...", id)
 }
 
-func snippetCreate(w http.ResponseWriter, r *http.Request) {
+func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Display a form for creating a new snippet...")
 }
 
 
-func snippetCreatePost(w http.ResponseWriter, r *http.Request) {
+func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
 	// use the w.WriteHeader() method to send an 201 status code.
 	w.WriteHeader(http.StatusCreated)
 
