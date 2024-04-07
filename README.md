@@ -14,6 +14,7 @@ Small gist like web application built in Go, following along with the book Let's
 1. Install all [Prerequisites](docs/prerequisites.md)
 2. run `go run ./cmd/web -help` to see a list of options while running the application.
 3. run `go run ./cmd/web` to start the application.
+4. run `docker-compose up` to start the mysql database.
 
 **[⬆ back to top](#table-of-contents)**
 
