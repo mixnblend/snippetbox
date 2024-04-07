@@ -1,10 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"log/slog"
 	"net/http"
 	"os"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // Define an application struct to hold the application-wide dependencies for the
@@ -21,6 +24,9 @@ func main() {
 	// will be stored in the addr variable at runtime.
 	addr := flag.String("addr", ":4000", "HTTP network address")
 
+	// define a new command-line flag for the MYSQL DSN string.
+	dsn := flag.String("dsn", "web:password@/snippetbox?parseTime=true", "MySQL, data source name")
+
 	// Importantly, we use the flag.Parse() function to parse the command-line flag.
 	// This read in the command-line flag value and assigns it to the addr variable.
 	// You need to call this *before* you use the addr variable, otherwise
@@ -31,6 +37,19 @@ func main() {
 	// Use he slog.New() function to initialise a new structured logger, which
 	// writes to the standard out and uses the default settings.
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
+	// To keep the main() function tidy I've put the code for creating a connection
+	// pool into the separate openDB() function below. We pass openDB() the DSN
+	// from the command-line flag.
+	db, err := openDB(*dsn)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
+	// We also defer a call to db.Close(), so that the connection pool is closed
+	// before the main() function exits.
+	defer db.Close()
 
 	// Initialize a new instance of our application struct, containing the
 	// dependencies (for now, just the structured logger).
@@ -46,11 +65,28 @@ func main() {
 	logger.Info("starting server", slog.String("addr", *addr))
 
 	// And we pass the dereferenced addr pointer to http.ListenAndServe() too.
-	err := http.ListenAndServe(*addr, app.routes())
+	err = http.ListenAndServe(*addr, app.routes())
 
 	// And we also use the Error() method to log any error message returned by
 	// http.ListenAndServe() at Error severity (with no additional attributes),
 	// and then call os.Exit(1) to terminate the application with exit code 1.
 	logger.Error(err.Error())
 	os.Exit(1)
+}
+
+// The openDB() function wraps sql.Open() and returns a sql.DB connection pool
+// for a given DSN.
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	return db, nil
 }
