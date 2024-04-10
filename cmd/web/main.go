@@ -23,6 +23,7 @@ import (
 type application struct {
 	logger         *slog.Logger
 	snippets       *models.SnippetModel
+	users          *models.UserModel
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
@@ -87,6 +88,7 @@ func main() {
 	// And add the session manager to our application dependencies.
 	app := &application{
 		logger:         logger,
+		users:          &models.UserModel{DB: db},
 		snippets:       &models.SnippetModel{DB: db},
 		templateCache:  templateCache,
 		formDecoder:    formDecoder,
