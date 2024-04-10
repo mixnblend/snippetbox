@@ -88,6 +88,14 @@ func main() {
 		sessionManager: sessionManager,
 	}
 
+	// Initalise a new http.Server struct. We set the Addr and Handler fields
+	// so that the server uses the same network address and routes as before.
+
+	srv := &http.Server{
+		Addr:    *addr,
+		Handler: app.routes(),
+	}
+
 	// The value returned from the flag.String() function is a pointer to the flag
 	// value, not the value itself. So in this code, that means the addr variable
 	// is actually a pointer, and we need to dereference it (i.e. prefix it with
@@ -96,7 +104,7 @@ func main() {
 	logger.Info("starting server", slog.String("addr", *addr))
 
 	// And we pass the dereferenced addr pointer to http.ListenAndServe() too.
-	err = http.ListenAndServe(*addr, app.routes())
+	err = srv.ListenAndServe()
 
 	// And we also use the Error() method to log any error message returned by
 	// http.ListenAndServe() at Error severity (with no additional attributes),
