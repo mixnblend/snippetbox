@@ -1,7 +1,7 @@
 package main
 
 import (
-	"crypto/tls",
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"html/template"
@@ -10,8 +10,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/alexedwards/scs/mysqlstore" // New import
-	"github.com/alexedwards/scs/v2"         // New import
+	"github.com/alexedwards/scs/mysqlstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/mixnblend/snippetbox/internal/models"
@@ -81,7 +81,7 @@ func main() {
 	sessionManager.Lifetime = 12 * time.Hour
 
 	tslConfig := &tls.Config{
-		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256}
+		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
 	}
 
 	// And add the session manager to our application dependencies.
@@ -97,13 +97,13 @@ func main() {
 	// so that the server uses the same network address and routes as before.
 
 	srv := &http.Server{
-		Addr:    *addr,
-		Handler: app.routes(),
-		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
+		Addr:      *addr,
+		Handler:   app.routes(),
+		ErrorLog:  slog.NewLogLogger(logger.Handler(), slog.LevelError),
 		TLSConfig: tslConfig,
 		// Add Idle, Read and Write timeouts to the server.
-		IdleTimeout: time.Minute,
-		ReadTimeout: 5 * time.Second,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
