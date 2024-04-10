@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls",
 	"database/sql"
 	"flag"
 	"html/template"
@@ -79,6 +80,10 @@ func main() {
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
 
+	tslConfig := &tls.Config{
+		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256}
+	}
+
 	// And add the session manager to our application dependencies.
 	app := &application{
 		logger:         logger,
@@ -94,11 +99,8 @@ func main() {
 	srv := &http.Server{
 		Addr:    *addr,
 		Handler: app.routes(),
-		// Create a *log.Logger from our structured logger handler, which writes
-		// log entries at Error level, and assign it to the ErrorLog field. If
-		// you would prefer to log the server errors at Warn level instead, you
-		// could pass slog.LevelWarn as the final parameter.
 		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
+		TLSConfig: tslConfig,
 	}
 
 	// The value returned from the flag.String() function is a pointer to the flag
