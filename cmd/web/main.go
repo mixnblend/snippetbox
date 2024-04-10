@@ -109,7 +109,7 @@ func main() {
 	logger.Info("starting server", slog.String("addr", *addr))
 
 	// And we pass the dereferenced addr pointer to http.ListenAndServe() too.
-	err = srv.ListenAndServe()
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 
 	// And we also use the Error() method to log any error message returned by
 	// http.ListenAndServe() at Error severity (with no additional attributes),
