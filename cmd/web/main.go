@@ -13,9 +13,9 @@ import (
 	// a Module) so that the import statement looks like this:
 	// "{your-module-path}/internal/models". If you can't remember what module path you
 	// used, you can find it at the top of the go.mod file.
-	"github.com/mixnblend/snippetbox/internal/models"
-
+	"github.com/go-playground/form/v4"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/mixnblend/snippetbox/internal/models"
 )
 
 // Define an application struct to hold the application-wide dependencies for the
@@ -25,6 +25,7 @@ type application struct {
 	logger        *slog.Logger
 	snippets      *models.SnippetModel
 	templateCache map[string]*template.Template
+	formDecoder   *form.Decoder
 }
 
 func main() {
@@ -68,12 +69,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Initialize a decoder instance ...
+	formDecoder := form.NewDecoder()
+
 	// Initialize a new instance of our application struct, containing the
 	// dependencies (for now, just the structured logger).
 	app := &application{
 		logger:        logger,
 		snippets:      &models.SnippetModel{DB: db},
 		templateCache: templateCache,
+		formDecoder:   formDecoder,
 	}
 
 	// The value returned from the flag.String() function is a pointer to the flag

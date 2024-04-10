@@ -10,16 +10,16 @@ import (
 	"github.com/mixnblend/snippetbox/internal/validator"
 )
 
-// Define a snippetCreateForm struct to represent the form data and validation
-// errors for the form fields. Note that all the struct fields are deliberately
-// exported (i.e. start with a capital letter). This is because struct fields
-// must be exported in order to be read by the html/template package when
-// rendering the template.
+// Update our snippetCreateForm struct to include struct tags which tell the
+// decoder how to map HTML form values into the different struct fields. So, for
+// example, here we're telling the decoder to store the value from the HTML form
+// input with the name "title" in the Title field. The struct tag `form:"-"`
+// tells the decoder to completely ignore a field during decoding.
 type snippetCreateForm struct {
-	Title   string
-	Content string
-	Expires int
-	validator.Validator
+	Title               string `form:"title"`
+	Content             string `form:"content"`
+	Expires             int    `form:"expires"`
+	validator.Validator `form:"-"`
 }
 
 // define a home handler function which writes a byte slice containing
@@ -88,26 +88,23 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	// to the r.PostForm map. This also works in the same way for PUT and PATCH
 	// requests. If there are any errors, we use our app.ClientError() helper to
 	// send a 400 Bad Request response to the user.
+	// Declare a new empty instance of the snippetCreateForm struct.
+	var form snippetCreateForm
 
-	err := r.ParseForm()
+	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
-	// Get the expires value of the form as normal
-	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
+	// Call the Decode() method of the form decoder, passing in the current
+	// request and *a pointer* to our snippetCreateForm struct. This will
+	// essentially fill our struct with the relevant values from the HTML form.
+	// If there is a problem, we return a 400 Bad Request response to the client.
+	err = app.formDecoder.Decode(&form, r.PostForm)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
-	}
-
-	// Create an instanc of the snippetCreateForm struct containing the values
-	// from the form and an empty map for any validation errors
-	form := snippetCreateForm{
-		Title:   r.PostForm.Get("title"),
-		Content: r.PostForm.Get("content"),
-		Expires: expires,
 	}
 
 	// Because the Validator struct is embedded by the snippetCreateForm struct,
