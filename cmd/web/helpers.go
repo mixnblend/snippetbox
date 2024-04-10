@@ -37,7 +37,7 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 	// method that we made earlier and return.
 	ts, ok := app.templateCache[page]
 	if !ok {
-		err := fmt.Errorf("The template %s does not exist", page)
+		err := fmt.Errorf("the template %s does not exist", page)
 		app.serverError(w, r, err)
 		return
 	}
