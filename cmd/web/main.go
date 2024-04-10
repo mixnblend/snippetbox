@@ -7,12 +7,10 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
-	// Import the models package that we just created. You need to prefix this with
-	// whatever module path you set up back in chapter 02.01 (Project Setup and Creating
-	// a Module) so that the import statement looks like this:
-	// "{your-module-path}/internal/models". If you can't remember what module path you
-	// used, you can find it at the top of the go.mod file.
+	"github.com/alexedwards/scs/mysqlstore" // New import
+	"github.com/alexedwards/scs/v2"         // New import
 	"github.com/go-playground/form/v4"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/mixnblend/snippetbox/internal/models"
@@ -22,10 +20,11 @@ import (
 // web application. For now we'll only include the structured logger, but we'll
 // add more to this as the build progresses.
 type application struct {
-	logger        *slog.Logger
-	snippets      *models.SnippetModel
-	templateCache map[string]*template.Template
-	formDecoder   *form.Decoder
+	logger         *slog.Logger
+	snippets       *models.SnippetModel
+	templateCache  map[string]*template.Template
+	formDecoder    *form.Decoder
+	sessionManager *scs.SessionManager
 }
 
 func main() {
@@ -72,13 +71,21 @@ func main() {
 	// Initialize a decoder instance ...
 	formDecoder := form.NewDecoder()
 
-	// Initialize a new instance of our application struct, containing the
-	// dependencies (for now, just the structured logger).
+	// Use the scs.New() function to initialize a new session manager. Then we
+	// configure it to use our MySQL database as the session store, and set a
+	// lifetime of 12 hours (so that sessions automatically expire 12 hours
+	// after first being created).
+	sessionManager := scs.New()
+	sessionManager.Store = mysqlstore.New(db)
+	sessionManager.Lifetime = 12 * time.Hour
+
+	// And add the session manager to our application dependencies.
 	app := &application{
-		logger:        logger,
-		snippets:      &models.SnippetModel{DB: db},
-		templateCache: templateCache,
-		formDecoder:   formDecoder,
+		logger:         logger,
+		snippets:       &models.SnippetModel{DB: db},
+		templateCache:  templateCache,
+		formDecoder:    formDecoder,
+		sessionManager: sessionManager,
 	}
 
 	// The value returned from the flag.String() function is a pointer to the flag
