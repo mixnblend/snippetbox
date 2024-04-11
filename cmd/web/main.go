@@ -30,7 +30,6 @@ type application struct {
 }
 
 func main() {
-
 	// Define a new command-line flag witht the name addr, a default value of ":4000"
 	// and some short helpt text explaining what the flag controls. The value of the flag
 	// will be stored in the addr variable at runtime.

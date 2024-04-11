@@ -47,15 +47,15 @@ test: ## run all tests
 
 .PHONY: test/e2e
 test/e2e: ## run end to end tests
-	go test -tags test_e2e -v ${MAIN_PACKAGE_PATH}
+	go test -race -tags test_e2e -v ${MAIN_PACKAGE_PATH}
 
 .PHONY: test/unit
 test/unit: ## run unit tests
-	go test -tags test_unit -v ${MAIN_PACKAGE_PATH}
+	go test -race -tags test_unit -v ${MAIN_PACKAGE_PATH}
 
 .PHONY: test/cover
 test/cover: ## run all tests and display coverage
-	go test -tags test_all -v -coverprofile=/tmp/coverage.out ${MAIN_PACKAGE_PATH}
+	go test -race -tags test_all -v -coverprofile=/tmp/coverage.out ${MAIN_PACKAGE_PATH}
 	go tool cover -html=/tmp/coverage.out
 
 .PHONY: build
