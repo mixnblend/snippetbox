@@ -15,6 +15,7 @@ Small gist like web application built in Go, following along with the book Let's
 2. run `go run ./cmd/web -help` to see a list of options while running the application.
 3. run `go run ./cmd/web` to start the application.
 4. run `docker-compose up` to start the mysql database.
+5. run `go test -v ./cmd/web -tags test_all` to run all tests
 
 **[⬆ back to top](#table-of-contents)**
 
@@ -23,7 +24,7 @@ Small gist like web application built in Go, following along with the book Let's
 to see a list of available commands run:
 
 ```bash
-to be filled in
+make help
 ```
 
 **[⬆ back to top](#table-of-contents)**
@@ -36,10 +37,22 @@ Before contributing please read through everything in [Contributing](docs/contri
 
 ## Testing
 
+Run all tests:
+
+```bash
+make test
+```
+
 Run all unit tests:
 
 ```bash
-npm run test
+make test/unit
+```
+
+Run all end to end tests:
+
+```bash
+make test/e2e
 ```
 
 - [Contributing](docs/CONTRIBUTING.md)
