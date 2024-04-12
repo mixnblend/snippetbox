@@ -1,5 +1,3 @@
-//go:build test_all || test_unit
-
 package main
 
 import (

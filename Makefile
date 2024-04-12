@@ -47,11 +47,11 @@ test: ## run all tests
 
 .PHONY: test/e2e
 test/e2e: ## run end to end tests
-	go test -race -tags test_e2e -v ${MAIN_PACKAGE_PATH}
+	go test -run="E2E" -race -v ${MAIN_PACKAGE_PATH}
 
 .PHONY: test/unit
 test/unit: ## run unit tests
-	go test -race -tags test_unit -v ${MAIN_PACKAGE_PATH}
+	go test -short -race -v ${MAIN_PACKAGE_PATH}
 
 .PHONY: test/cover
 test/cover: ## run all tests and display coverage
