@@ -51,6 +51,13 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, "home.tmpl", data)
 }
 
+// add an about page the application
+func (app *application) about(w http.ResponseWriter, r *http.Request) {
+
+	data := app.newTemplateData(r)
+	app.render(w, r, http.StatusOK, "about.tmpl", data)
+}
+
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	// Extract the value of the id wildcard from the request using r.PathValue()
