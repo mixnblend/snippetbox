@@ -123,6 +123,53 @@ func TestSnippetViewE2E(t *testing.T) {
 	}
 }
 
+func TestSnippetCreateE2E(t *testing.T) {
+	endToEndTest(t)
+	// Given ... we have an application with a structured logger which discards everthing.
+	app := newTestApplication(t)
+
+	// And ... we have created a new test server
+	testServer := newTestServer(t, app.routes())
+	defer testServer.Close()
+
+	t.Run("Unauthenticated", func(t *testing.T) {
+		// When ... we call our get /snippet create route.
+		code, headers, _ := testServer.get(t, "/snippet/create")
+
+		// Then ... the 403 forbidden status code should be returned as expected
+		assert.Equal(t, code, http.StatusSeeOther)
+		assert.Equal(t, headers.Get("Location"), "/user/login")
+	})
+
+	t.Run("Authenticated", func(t *testing.T) {
+
+		const (
+			validPassword = "pa$$word"
+			validEmail    = "alice@example.com"
+			formTag       = "<form action='/snippet/create' method='POST'>"
+		)
+
+		// And ... we have extracted the csrf token from the login form
+		_, _, body := testServer.get(t, "/user/login")
+		validCSRFToken := extractCSRFToken(t, body)
+
+		// And ... we have logged the user in
+		form := url.Values{}
+		form.Add("email", validEmail)
+		form.Add("password", validPassword)
+		form.Add("csrf_token", validCSRFToken)
+
+		testServer.postForm(t, "/user/login", form)
+
+		// When ... we call our get /snippet create route.
+		code, _, body := testServer.get(t, "/snippet/create")
+
+		// Then ... the 200 forbidden status code should be returned as expected
+		assert.Equal(t, code, http.StatusOK)
+		assert.StringContains(t, body, formTag)
+	})
+}
+
 func TestUserSignupE2E(t *testing.T) {
 	endToEndTest(t)
 
