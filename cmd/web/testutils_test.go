@@ -134,3 +134,10 @@ func endToEndTest(t *testing.T) {
 		t.Skip("skipping end to end test")
 	}
 }
+
+func integrationTest(t *testing.T) {
+	t.Helper()
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+}

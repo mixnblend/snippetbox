@@ -49,6 +49,10 @@ test: ## run all tests
 test/e2e: ## run end to end tests
 	go test -run="E2E" -race -v ${MAIN_PACKAGE_PATH}
 
+.PHONY: test/integration
+test/e2e: ## run integration tests
+	go test -run="integration" -race -v ${MAIN_PACKAGE_PATH}
+
 .PHONY: test/unit
 test/unit: ## run unit tests
 	go test -short -race -v ${MAIN_PACKAGE_PATH}
