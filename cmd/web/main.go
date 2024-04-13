@@ -27,6 +27,7 @@ type application struct {
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
+	debug          bool
 }
 
 func main() {
@@ -34,6 +35,8 @@ func main() {
 	// and some short helpt text explaining what the flag controls. The value of the flag
 	// will be stored in the addr variable at runtime.
 	addr := flag.String("addr", ":4000", "HTTP network address")
+
+	debug := flag.Bool("debug", false, "Enable Debug mode")
 
 	// define a new command-line flag for the MYSQL DSN string.
 	dsn := flag.String("dsn", "web:password@/snippetbox?parseTime=true", "MySQL, data source name")
@@ -92,6 +95,7 @@ func main() {
 		templateCache:  templateCache,
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
+		debug:          *debug,
 	}
 
 	// Initalise a new http.Server struct. We set the Addr and Handler fields

@@ -70,6 +70,10 @@ build: ## build the application
 run/app:  ## run the  application
 	go run ./cmd/web
 
+.PHONY: run/app/debug
+run/app/debug:  ## run the  application in debug mode
+	go run ./cmd/web -debug
+
 .PHONY: run/db
 run/db:  ## run the  database
 	docker-compose up
