@@ -15,6 +15,7 @@ type UserModelInterface interface {
 	Authenticate(email, password string) (int, error)
 	Exists(id int) (bool, error)
 	Get(id int) (User, error)
+	PasswordUpdate(id int, currentPassword, newPassword string) error
 }
 
 const userModelUniqueEmailConstraint = "users_uc_email"
@@ -118,4 +119,33 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 
 	// Otherwise, the password is correct. Return the user ID.
 	return id, nil
+}
+
+func (m *UserModel) PasswordUpdate(id int, currentPassword, newPassword string) error {
+	var user User
+
+	stmt := `select hashed_password from users WHERE id = ?`
+
+	err := m.DB.QueryRow(stmt, id).Scan(&user.HashedPassword)
+	if err != nil {
+		return err
+	}
+
+	err = bcrypt.CompareHashAndPassword(user.HashedPassword, []byte(currentPassword))
+	if err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return ErrInvalidCredentials
+		} else {
+			return err
+		}
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), 12)
+	if err != nil {
+		return err
+	}
+
+	stmt = `UPDATE users SET hashed_password = ? WHERE ID = ?`
+	_, err = m.DB.Exec(stmt, string(hashedPassword), id)
+	return err
 }

@@ -19,6 +19,11 @@ func MinChars(value string, n int) bool {
 	return utf8.RuneCountInString(value) >= n
 }
 
+// MaxChars() returns true if a value contains no more than n characters.
+func MaxChars(value string, n int) bool {
+	return utf8.RuneCountInString(value) <= n
+}
+
 // Matches() returns true if a value matches a provided compiled regular
 // expression pattern.
 func Matches(value string, rx *regexp.Regexp) bool {
@@ -68,11 +73,6 @@ func (v *Validator) CheckField(ok bool, key, message string) {
 // NotBlank() returns true if a value is not an empty string.
 func NotBlank(value string) bool {
 	return strings.TrimSpace(value) != ""
-}
-
-// MaxChars() returns true if a value contains no more than n characters.
-func MaxChars(value string, n int) bool {
-	return utf8.RuneCountInString(value) <= n
 }
 
 // PermittedValue() returns true if a value is in a list of specific permitted
